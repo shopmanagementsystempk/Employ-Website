@@ -20,6 +20,7 @@ import ActivityLogs from './pages/Admin/ActivityLogs';
 import CardTemplates from './pages/Admin/CardTemplates';
 import OfferLetterGenerator from './pages/Admin/OfferLetterGenerator';
 import OfferLetterRecords from './pages/Admin/OfferLetterRecords';
+import VisitingCardRecords from './pages/Admin/VisitingCardRecords';
 
 // Employee Pages
 import EmployeeDashboard from './pages/Employee/Dashboard';
@@ -85,6 +86,14 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="admin">
                   <OfferLetterRecords />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/visiting-card-records"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <VisitingCardRecords />
                 </ProtectedRoute>
               }
             />
