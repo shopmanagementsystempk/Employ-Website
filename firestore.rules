@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.role == 'admin';
+    }
+    
+    // Helper function to check if user is employee or admin
+    function isEmployee() {
+      return isAuthenticated() && 
+             (request.auth.token.role == 'employee' || 
+              request.auth.token.role == 'admin');
+    }
+    
+    // Helper function to check if user is not blocked
+    function isNotBlocked() {
+      return isAuthenticated() && 
+             (!exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
+              !get(/databases/$(database)/documents/users/$(request.auth.uid)).data.blocked);
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own data
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == userId || isAdmin());
+      
+      // Only admins can create, update, or delete users
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Visiting Cards collection
+    match /visitingCards/{cardId} {
+      // Users can read their own cards, admins can read all
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // Users can create/update their own cards, admins can do all
+      allow create: if isNotBlocked() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isNotBlocked() && 
+                       (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isNotBlocked() && 
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+    
+    // Visitors collection
+    match /visitors/{visitorId} {
+      // Employees can read visitors they hosted, admins can read all
+      allow read: if isAuthenticated() && 
+                     (resource.data.hostEmployeeId == request.auth.uid || isAdmin());
+      
+      // Employees can create visitors, admins can do all
+      allow create: if isNotBlocked() && isEmployee() &&
+                       request.resource.data.hostEmployeeId == request.auth.uid;
+      allow update: if isNotBlocked() && isAdmin();
+      allow delete: if isNotBlocked() && isAdmin();
+    }
+    
+    // Card Templates collection
+    match /cardTemplates/{templateId} {
+      // Everyone can read active templates
+      allow read: if isAuthenticated();
+      
+      // Only admins can manage templates
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Activity Logs collection
+    match /activityLogs/{logId} {
+      // Only admins can read logs
+      allow read: if isAdmin();
+      
+      // Only Cloud Functions can write logs (enforced via security)
+      allow write: if false;
+    }
+  }
+}
+

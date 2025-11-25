@@ -1,0 +1,45 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.role == 'admin';
+    }
+    
+    // Helper function to check if user is not blocked
+    function isNotBlocked() {
+      return isAuthenticated();
+    }
+    
+    // Profile pictures - users can upload their own
+    match /profiles/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isNotBlocked() && request.auth.uid == userId;
+    }
+    
+    // Card templates - admins only
+    match /templates/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    // Generated cards - users can upload their own
+    match /cards/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isNotBlocked() && request.auth.uid == userId;
+    }
+    
+    // Visitor cards - employees can upload
+    match /visitorCards/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isNotBlocked();
+    }
+  }
+}
+
