@@ -20,6 +20,8 @@ import ActivityLogs from './pages/Admin/ActivityLogs';
 import CardTemplates from './pages/Admin/CardTemplates';
 import OfferLetterGenerator from './pages/Admin/OfferLetterGenerator';
 import OfferLetterRecords from './pages/Admin/OfferLetterRecords';
+import AppointmentLetterGenerator from './pages/Admin/AppointmentLetterGenerator';
+import AppointmentLetterRecords from './pages/Admin/AppointmentLetterRecords';
 import VisitingCardRecords from './pages/Admin/VisitingCardRecords';
 
 // Employee Pages
@@ -82,10 +84,26 @@ function App() {
               }
             />
             <Route
+              path="/admin/appointment-letters"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AppointmentLetterGenerator />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/offer-letter-records"
               element={
                 <ProtectedRoute requiredRole="admin">
                   <OfferLetterRecords />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/appointment-letter-records"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AppointmentLetterRecords />
                 </ProtectedRoute>
               }
             />
