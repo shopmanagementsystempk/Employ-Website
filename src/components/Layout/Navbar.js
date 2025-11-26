@@ -29,8 +29,10 @@ const Navbar = () => {
                     <Nav.Link as={Link} to="/admin/users">Manage Users</Nav.Link>
                     <Nav.Link as={Link} to="/admin/employees">Manage Employees</Nav.Link>
                     <Nav.Link as={Link} to="/admin/offer-letters">Offer Letters</Nav.Link>
+                    <Nav.Link as={Link} to="/admin/appointment-letters">Appointment Letters</Nav.Link>
                     <Nav.Link as={Link} to="/admin/visiting-card-records">Card History</Nav.Link>
                     <Nav.Link as={Link} to="/admin/offer-letter-records">Offer Letter Records</Nav.Link>
+                    <Nav.Link as={Link} to="/admin/appointment-letter-records">Appointment Letter Records</Nav.Link>
                     <Nav.Link as={Link} to="/admin/templates">Card Templates</Nav.Link>
                     <Nav.Link as={Link} to="/admin/logs">Activity Logs</Nav.Link>
                   </>
