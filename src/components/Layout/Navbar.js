@@ -14,13 +14,25 @@ const Navbar = () => {
 
   return (
     <BootstrapNavbar expand="lg" className="mb-4 softverse-navbar floating-rings">
-      <Container>
-        <BootstrapNavbar.Brand as={Link} to="/">
-          Soft <span style={{ color: '#6ee7b7' }}>Verse</span>
+      <Container fluid="lg">
+        <BootstrapNavbar.Brand as={Link} to="/" className="d-flex align-items-center">
+          <img 
+            src="/logo.png" 
+            alt="Soft Verse Logo" 
+            style={{ 
+              height: '40px', 
+              width: 'auto', 
+              marginRight: '10px',
+              objectFit: 'contain'
+            }} 
+          />
+          <span>
+            Soft <span style={{ color: '#6ee7b7' }}>Verse</span>
+          </span>
         </BootstrapNavbar.Brand>
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto gap-2">
+          <Nav className="me-auto" style={{ flexWrap: 'wrap', gap: '0.25rem' }}>
             {currentUser && (
               <>
                 {userRole === 'admin' && (
