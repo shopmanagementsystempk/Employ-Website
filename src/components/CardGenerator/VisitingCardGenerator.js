@@ -47,7 +47,16 @@ const VisitingCardGenerator = () => {
     logoUrl: '',
     logoColor: '#ffffff',
     logoOffsetX: 0,
-    logoOffsetY: 0
+    logoOffsetY: 0,
+    nameSize: '',
+    titleSize: '',
+    designationSize: '',
+    companySize: '',
+    phoneSize: '',
+    emailSize: '',
+    websiteSize: '',
+    addressSize: '',
+    logoSize: ''
   });
   const [templates, setTemplates] = useState([]);
   const [template, setTemplate] = useState(null);
@@ -176,6 +185,43 @@ const VisitingCardGenerator = () => {
     const y = Number(formData[`${field}OffsetY`]) || 0;
     if (!x && !y) return {};
     return { transform: `translate(${x}px, ${y}px)` };
+  };
+
+  const getSizeStyle = (field) => {
+    const size = formData[`${field}Size`];
+    if (!size) return {};
+    // Support both px and rem units, default to px if no unit specified
+    const sizeValue = size.toString().trim();
+    if (sizeValue === '') return {};
+    // If it's a number, assume px
+    if (/^\d+$/.test(sizeValue)) {
+      return { fontSize: `${sizeValue}px` };
+    }
+    // If it already has a unit, use it as is
+    if (/^\d+(px|rem|em|pt)$/i.test(sizeValue)) {
+      return { fontSize: sizeValue };
+    }
+    // Default to px if invalid format
+    return { fontSize: `${sizeValue}px` };
+  };
+
+  const getLogoSizeStyle = () => {
+    const size = formData.logoSize;
+    if (!size) return { maxWidth: '120px', maxHeight: '80px' };
+    const sizeValue = size.toString().trim();
+    if (sizeValue === '') return { maxWidth: '120px', maxHeight: '80px' };
+    
+    // Check if it's width and height (e.g., "120px 80px")
+    const parts = sizeValue.split(/\s+/);
+    if (parts.length === 2) {
+      return { width: parts[0], height: parts[1], maxWidth: parts[0], maxHeight: parts[1] };
+    }
+    // If single value, use as maxWidth and maintain aspect ratio
+    if (/^\d+(px|rem|em|pt)$/i.test(sizeValue) || /^\d+$/.test(sizeValue)) {
+      const width = /^\d+$/.test(sizeValue) ? `${sizeValue}px` : sizeValue;
+      return { maxWidth: width, maxHeight: 'auto' };
+    }
+    return { maxWidth: '120px', maxHeight: '80px' };
   };
 
   const handleTemplateChange = (e) => {
@@ -328,6 +374,14 @@ const VisitingCardGenerator = () => {
                   />
                   <Form.Label className="mt-2">Text Color</Form.Label>
                   <Form.Control type="color" name="nameColor" value={formData.nameColor} onChange={handleChange} />
+                  <Form.Label className="mt-2">Font Size (e.g., 16px, 1.2rem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="nameSize"
+                    value={formData.nameSize}
+                    onChange={handleChange}
+                    placeholder="e.g., 18px"
+                  />
                   <div className="d-flex gap-2 mt-2 flex-wrap">
                     <Form.Group className="flex-fill">
                       <Form.Label className="small text-muted">Horizontal Offset (px)</Form.Label>
@@ -359,6 +413,14 @@ const VisitingCardGenerator = () => {
                   />
                   <Form.Label className="mt-2">Text Color</Form.Label>
                   <Form.Control type="color" name="titleColor" value={formData.titleColor} onChange={handleChange} />
+                  <Form.Label className="mt-2">Font Size (e.g., 16px, 1.2rem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="titleSize"
+                    value={formData.titleSize}
+                    onChange={handleChange}
+                    placeholder="e.g., 14px"
+                  />
                   <div className="d-flex gap-2 mt-2 flex-wrap">
                     <Form.Group className="flex-fill">
                       <Form.Label className="small text-muted">Horizontal Offset (px)</Form.Label>
@@ -391,6 +453,14 @@ const VisitingCardGenerator = () => {
                   />
                   <Form.Label className="mt-2">Text Color</Form.Label>
                   <Form.Control type="color" name="designationColor" value={formData.designationColor} onChange={handleChange} />
+                  <Form.Label className="mt-2">Font Size (e.g., 16px, 1.2rem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="designationSize"
+                    value={formData.designationSize}
+                    onChange={handleChange}
+                    placeholder="e.g., 14px"
+                  />
                   <div className="d-flex gap-2 mt-2 flex-wrap">
                     <Form.Group className="flex-fill">
                       <Form.Label className="small text-muted">Horizontal Offset (px)</Form.Label>
@@ -422,6 +492,14 @@ const VisitingCardGenerator = () => {
                   />
                   <Form.Label className="mt-2">Text Color</Form.Label>
                   <Form.Control type="color" name="companyColor" value={formData.companyColor} onChange={handleChange} />
+                  <Form.Label className="mt-2">Font Size (e.g., 16px, 1.2rem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="companySize"
+                    value={formData.companySize}
+                    onChange={handleChange}
+                    placeholder="e.g., 12px"
+                  />
                   <div className="d-flex gap-2 mt-2 flex-wrap">
                     <Form.Group className="flex-fill">
                       <Form.Label className="small text-muted">Horizontal Offset (px)</Form.Label>
@@ -454,6 +532,14 @@ const VisitingCardGenerator = () => {
                   />
                   <Form.Label className="mt-2">Text Color</Form.Label>
                   <Form.Control type="color" name="phoneColor" value={formData.phoneColor} onChange={handleChange} />
+                  <Form.Label className="mt-2">Font Size (e.g., 16px, 1.2rem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="phoneSize"
+                    value={formData.phoneSize}
+                    onChange={handleChange}
+                    placeholder="e.g., 11px"
+                  />
                   <div className="d-flex gap-2 mt-2 flex-wrap">
                     <Form.Group className="flex-fill">
                       <Form.Label className="small text-muted">Horizontal Offset (px)</Form.Label>
@@ -486,6 +572,14 @@ const VisitingCardGenerator = () => {
                   />
                   <Form.Label className="mt-2">Text Color</Form.Label>
                   <Form.Control type="color" name="emailColor" value={formData.emailColor} onChange={handleChange} />
+                  <Form.Label className="mt-2">Font Size (e.g., 16px, 1.2rem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="emailSize"
+                    value={formData.emailSize}
+                    onChange={handleChange}
+                    placeholder="e.g., 11px"
+                  />
                   <div className="d-flex gap-2 mt-2 flex-wrap">
                     <Form.Group className="flex-fill">
                       <Form.Label className="small text-muted">Horizontal Offset (px)</Form.Label>
@@ -517,6 +611,14 @@ const VisitingCardGenerator = () => {
                   />
                   <Form.Label className="mt-2">Text Color</Form.Label>
                   <Form.Control type="color" name="websiteColor" value={formData.websiteColor} onChange={handleChange} />
+                  <Form.Label className="mt-2">Font Size (e.g., 16px, 1.2rem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="websiteSize"
+                    value={formData.websiteSize}
+                    onChange={handleChange}
+                    placeholder="e.g., 11px"
+                  />
                   <div className="d-flex gap-2 mt-2 flex-wrap">
                     <Form.Group className="flex-fill">
                       <Form.Label className="small text-muted">Horizontal Offset (px)</Form.Label>
@@ -549,6 +651,14 @@ const VisitingCardGenerator = () => {
                   />
                   <Form.Label className="mt-2">Text Color</Form.Label>
                   <Form.Control type="color" name="addressColor" value={formData.addressColor} onChange={handleChange} />
+                  <Form.Label className="mt-2">Font Size (e.g., 16px, 1.2rem)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="addressSize"
+                    value={formData.addressSize}
+                    onChange={handleChange}
+                    placeholder="e.g., 11px"
+                  />
                   <div className="d-flex gap-2 mt-2 flex-wrap">
                     <Form.Group className="flex-fill">
                       <Form.Label className="small text-muted">Horizontal Offset (px)</Form.Label>
@@ -597,6 +707,17 @@ const VisitingCardGenerator = () => {
                     value={formData.logoColor} 
                     onChange={handleChange} 
                   />
+                  <Form.Label className="mt-2">Size (e.g., 120px, 80px)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="logoSize"
+                    value={formData.logoSize}
+                    onChange={handleChange}
+                    placeholder="e.g., 120px 80px (width height)"
+                  />
+                  <Form.Text className="text-muted">
+                    Enter width and height separated by space (e.g., "120px 80px") or just width (e.g., "100px")
+                  </Form.Text>
                   <div className="d-flex gap-2 mt-2 flex-wrap">
                     <Form.Group className="flex-fill">
                       <Form.Label className="small text-muted">Horizontal Offset (px)</Form.Label>
@@ -670,8 +791,7 @@ const VisitingCardGenerator = () => {
                           transform: `translate(${Number(formData.logoOffsetX) || 0}px, ${Number(formData.logoOffsetY) || 0}px)`
                         }}>
                           <img src={formData.logoUrl} alt="Logo" style={{
-                            maxWidth: '120px',
-                            maxHeight: '80px',
+                            ...getLogoSizeStyle(),
                             objectFit: 'contain',
                             filter: formData.logoColor && formData.logoColor !== '#ffffff' 
                               ? `drop-shadow(0 0 2px ${formData.logoColor})` 
@@ -681,34 +801,34 @@ const VisitingCardGenerator = () => {
                       )}
                       <div className="template-overlay-inner">
                         <div>
-                          <h4 style={{ color: formData.nameColor || formData.textColor, ...getOffsetStyle('name') }}>
+                          <h4 style={{ color: formData.nameColor || formData.textColor, ...getOffsetStyle('name'), ...getSizeStyle('name') }}>
                             {formData.name || 'Your Name'}
                           </h4>
-                          <p style={{ color: formData.designationColor || formData.textColor, ...getOffsetStyle('designation') }}>
+                          <p style={{ color: formData.designationColor || formData.textColor, ...getOffsetStyle('designation'), ...getSizeStyle('designation') }}>
                             {formData.designation || 'Designation'}
                           </p>
                           {formData.title && (
-                            <small style={{ color: formData.titleColor || formData.textColor, ...getOffsetStyle('title') }}>{formData.title}</small>
+                            <small style={{ color: formData.titleColor || formData.textColor, ...getOffsetStyle('title'), ...getSizeStyle('title') }}>{formData.title}</small>
                           )}
                         </div>
                         <div className="template-overlay-contact">
                           {formData.phone && (
-                            <span style={{ color: formData.phoneColor || formData.textColor, ...getOffsetStyle('phone') }}>
+                            <span style={{ color: formData.phoneColor || formData.textColor, ...getOffsetStyle('phone'), ...getSizeStyle('phone') }}>
                               📞 {formData.phone}
                             </span>
                           )}
                           {formData.email && (
-                            <span style={{ color: formData.emailColor || formData.textColor, ...getOffsetStyle('email') }}>
+                            <span style={{ color: formData.emailColor || formData.textColor, ...getOffsetStyle('email'), ...getSizeStyle('email') }}>
                               ✉️ {formData.email}
                             </span>
                           )}
                           {formData.website && (
-                            <span style={{ color: formData.websiteColor || formData.textColor, ...getOffsetStyle('website') }}>
+                            <span style={{ color: formData.websiteColor || formData.textColor, ...getOffsetStyle('website'), ...getSizeStyle('website') }}>
                               🌐 {formData.website}
                             </span>
                           )}
                           {formData.address && (
-                            <span style={{ color: formData.addressColor || formData.textColor, ...getOffsetStyle('address') }}>
+                            <span style={{ color: formData.addressColor || formData.textColor, ...getOffsetStyle('address'), ...getSizeStyle('address') }}>
                               📍 {formData.address}
                             </span>
                           )}
@@ -727,8 +847,7 @@ const VisitingCardGenerator = () => {
                         transform: `translate(${Number(formData.logoOffsetX) || 0}px, ${Number(formData.logoOffsetY) || 0}px)`
                       }}>
                         <img src={formData.logoUrl} alt="Logo" style={{
-                          maxWidth: '120px',
-                          maxHeight: '80px',
+                          ...getLogoSizeStyle(),
                           objectFit: 'contain',
                           filter: formData.logoColor && formData.logoColor !== '#ffffff' 
                             ? `drop-shadow(0 0 2px ${formData.logoColor})` 
@@ -739,17 +858,17 @@ const VisitingCardGenerator = () => {
                     <div className="card-softverse-premium-inner">
                     <div className="svp-main">
                       <div className="svp-name-block">
-                        <h4 style={{ color: formData.nameColor || formData.textColor, ...getOffsetStyle('name') }}>{formData.name || 'M. Sarmad Naeem'}</h4>
-                        <p className="svp-role" style={{ color: formData.designationColor || formData.textColor, ...getOffsetStyle('designation') }}>
+                        <h4 style={{ color: formData.nameColor || formData.textColor, ...getOffsetStyle('name'), ...getSizeStyle('name') }}>{formData.name || 'M. Sarmad Naeem'}</h4>
+                        <p className="svp-role" style={{ color: formData.designationColor || formData.textColor, ...getOffsetStyle('designation'), ...getSizeStyle('designation') }}>
                           {formData.designation || 'CEO'}
                         </p>
                         {formData.title && (
-                          <p className="svp-title" style={{ color: formData.titleColor || formData.textColor, ...getOffsetStyle('title') }}>{formData.title}</p>
+                          <p className="svp-title" style={{ color: formData.titleColor || formData.textColor, ...getOffsetStyle('title'), ...getSizeStyle('title') }}>{formData.title}</p>
                         )}
                       </div>
                       <div className="svp-logo-block">
                         <div className="svp-logo-mark">SV</div>
-                        <div className="svp-logo-text" style={{ color: formData.companyColor || formData.textColor, ...getOffsetStyle('company') }}>
+                        <div className="svp-logo-text" style={{ color: formData.companyColor || formData.textColor, ...getOffsetStyle('company'), ...getSizeStyle('company') }}>
                           {formData.company || 'SoftVerse'}
                         </div>
                       </div>
@@ -758,25 +877,25 @@ const VisitingCardGenerator = () => {
                       {formData.phone && (
                         <div className="svp-contact-row" style={getOffsetStyle('phone')}>
                           <span>📞</span>
-                          <span style={{ color: formData.phoneColor || formData.textColor }}>{formData.phone}</span>
+                          <span style={{ color: formData.phoneColor || formData.textColor, ...getSizeStyle('phone') }}>{formData.phone}</span>
                         </div>
                       )}
                       {formData.email && (
                         <div className="svp-contact-row" style={getOffsetStyle('email')}>
                           <span>✉️</span>
-                          <span style={{ color: formData.emailColor || formData.textColor }}>{formData.email}</span>
+                          <span style={{ color: formData.emailColor || formData.textColor, ...getSizeStyle('email') }}>{formData.email}</span>
                         </div>
                       )}
                       {formData.website && (
                         <div className="svp-contact-row" style={getOffsetStyle('website')}>
                           <span>🌐</span>
-                          <span style={{ color: formData.websiteColor || formData.textColor }}>{formData.website}</span>
+                          <span style={{ color: formData.websiteColor || formData.textColor, ...getSizeStyle('website') }}>{formData.website}</span>
                         </div>
                       )}
                       {formData.address && (
                         <div className="svp-contact-row" style={getOffsetStyle('address')}>
                           <span>📍</span>
-                          <span style={{ color: formData.addressColor || formData.textColor }}>{formData.address}</span>
+                          <span style={{ color: formData.addressColor || formData.textColor, ...getSizeStyle('address') }}>{formData.address}</span>
                         </div>
                       )}
                     </div>
@@ -791,8 +910,7 @@ const VisitingCardGenerator = () => {
                         transform: `translate(${Number(formData.logoOffsetX) || 0}px, ${Number(formData.logoOffsetY) || 0}px)`
                       }}>
                         <img src={formData.logoUrl} alt="Logo" style={{
-                          maxWidth: '120px',
-                          maxHeight: '80px',
+                          ...getLogoSizeStyle(),
                           objectFit: 'contain',
                           filter: formData.logoColor && formData.logoColor !== '#ffffff' 
                             ? `drop-shadow(0 0 2px ${formData.logoColor})` 
@@ -805,7 +923,8 @@ const VisitingCardGenerator = () => {
                         marginBottom: '10px',
                         fontWeight: 'bold',
                         color: formData.nameColor || formData.textColor,
-                        ...getOffsetStyle('name')
+                        ...getOffsetStyle('name'),
+                        ...getSizeStyle('name')
                       }}
                     >
                       {formData.name || 'Your Name'}
@@ -815,7 +934,8 @@ const VisitingCardGenerator = () => {
                         marginBottom: '5px',
                         fontSize: '14px',
                         color: formData.designationColor || formData.textColor,
-                        ...getOffsetStyle('designation')
+                        ...getOffsetStyle('designation'),
+                        ...getSizeStyle('designation')
                       }}
                     >
                       {formData.designation || 'Designation'}
@@ -826,7 +946,8 @@ const VisitingCardGenerator = () => {
                           marginBottom: '5px',
                           fontSize: '12px',
                           color: formData.titleColor || formData.textColor,
-                          ...getOffsetStyle('title')
+                          ...getOffsetStyle('title'),
+                          ...getSizeStyle('title')
                         }}
                       >
                         {formData.title}
@@ -838,7 +959,8 @@ const VisitingCardGenerator = () => {
                         fontSize: '12px',
                         fontWeight: 'bold',
                         color: formData.companyColor || formData.textColor,
-                        ...getOffsetStyle('company')
+                        ...getOffsetStyle('company'),
+                        ...getSizeStyle('company')
                       }}
                     >
                       {formData.company}
@@ -851,22 +973,22 @@ const VisitingCardGenerator = () => {
                       }}
                     >
                       {formData.phone && (
-                        <p style={{ margin: '3px 0', color: formData.phoneColor || formData.textColor, ...getOffsetStyle('phone') }}>
+                        <p style={{ margin: '3px 0', color: formData.phoneColor || formData.textColor, ...getOffsetStyle('phone'), ...getSizeStyle('phone') }}>
                           📞 {formData.phone}
                         </p>
                       )}
                       {formData.email && (
-                        <p style={{ margin: '3px 0', color: formData.emailColor || formData.textColor, ...getOffsetStyle('email') }}>
+                        <p style={{ margin: '3px 0', color: formData.emailColor || formData.textColor, ...getOffsetStyle('email'), ...getSizeStyle('email') }}>
                           ✉️ {formData.email}
                         </p>
                       )}
                       {formData.website && (
-                        <p style={{ margin: '3px 0', color: formData.websiteColor || formData.textColor, ...getOffsetStyle('website') }}>
+                        <p style={{ margin: '3px 0', color: formData.websiteColor || formData.textColor, ...getOffsetStyle('website'), ...getSizeStyle('website') }}>
                           🌐 {formData.website}
                         </p>
                       )}
                       {formData.address && (
-                        <p style={{ margin: '3px 0', color: formData.addressColor || formData.textColor, ...getOffsetStyle('address') }}>
+                        <p style={{ margin: '3px 0', color: formData.addressColor || formData.textColor, ...getOffsetStyle('address'), ...getSizeStyle('address') }}>
                           📍 {formData.address}
                         </p>
                       )}
