@@ -19,16 +19,77 @@ const VisitorCard = () => {
     hostEmployeeId: currentUser?.uid || '',
     company: '',
     visitDate: format(new Date(), 'yyyy-MM-dd'),
-    visitTime: format(new Date(), 'HH:mm')
+    visitTime: format(new Date(), 'HH:mm'),
+    backgroundImageUrl: ''
   });
   const [generatedCard, setGeneratedCard] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [backgroundImageFile, setBackgroundImageFile] = useState(null);
+  const [uploadingBackground, setUploadingBackground] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const uploadToCloudinary = async (file) => {
+    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      toast.error('Cloudinary configuration missing.');
+      return '';
+    }
+
+    const data = new FormData();
+    data.append('file', file);
+    data.append('upload_preset', uploadPreset);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST',
+      body: data
+    });
+
+    const json = await res.json();
+    if (res.ok && json.secure_url) {
+      return json.secure_url;
+    }
+    console.error('Cloudinary upload error:', json);
+    toast.error(json.error?.message || 'Cloudinary upload failed.');
+    return '';
+  };
+
+  const handleBackgroundImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingBackground(true);
+    try {
+      const imageUrl = await uploadToCloudinary(file);
+      if (imageUrl) {
+        setFormData({
+          ...formData,
+          backgroundImageUrl: imageUrl
+        });
+        toast.success('Background image uploaded successfully!');
+      }
+    } catch (error) {
+      console.error('Error uploading background image:', error);
+      toast.error('Failed to upload background image');
+    } finally {
+      setUploadingBackground(false);
+      setBackgroundImageFile(null);
+    }
+  };
+
+  const handleRemoveBackgroundImage = () => {
+    setFormData({
+      ...formData,
+      backgroundImageUrl: ''
+    });
+    toast.success('Background image removed successfully!');
   };
 
   const generateVisitorId = () => {
@@ -55,8 +116,9 @@ const VisitorCard = () => {
 
     try {
       const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: '#ffffff',
-        scale: 2
+        backgroundColor: formData.backgroundImageUrl ? null : '#ffffff',
+        scale: 2,
+        useCORS: true
       });
       const imgData = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -75,8 +137,9 @@ const VisitorCard = () => {
 
     try {
       const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: '#ffffff',
-        scale: 2
+        backgroundColor: formData.backgroundImageUrl ? null : '#ffffff',
+        scale: 2,
+        useCORS: true
       });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('landscape', 'mm', [89, 51]);
@@ -115,7 +178,8 @@ const VisitorCard = () => {
         hostEmployeeId: currentUser?.uid || '',
         company: '',
         visitDate: format(new Date(), 'yyyy-MM-dd'),
-        visitTime: format(new Date(), 'HH:mm')
+        visitTime: format(new Date(), 'HH:mm'),
+        backgroundImageUrl: ''
       });
       setGeneratedCard(null);
     } catch (error) {
@@ -201,6 +265,34 @@ const VisitorCard = () => {
                     onChange={handleChange}
                   />
                 </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Background Image</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBackgroundImageUpload}
+                    disabled={uploadingBackground}
+                  />
+                  {uploadingBackground && (
+                    <Form.Text className="text-muted">Uploading background image...</Form.Text>
+                  )}
+                  {formData.backgroundImageUrl && (
+                    <div className="mt-2 d-flex align-items-center gap-2">
+                      <img 
+                        src={formData.backgroundImageUrl} 
+                        alt="Background preview" 
+                        style={{ maxWidth: '150px', maxHeight: '100px', objectFit: 'cover', borderRadius: '4px' }}
+                      />
+                      <Button 
+                        variant="danger" 
+                        size="sm" 
+                        onClick={handleRemoveBackgroundImage}
+                      >
+                        Remove Background
+                      </Button>
+                    </div>
+                  )}
+                </Form.Group>
                 <div className="d-grid gap-2">
                   <Button variant="primary" onClick={handleGenerate}>
                     Generate Card
@@ -228,41 +320,58 @@ const VisitorCard = () => {
                       maxWidth: '400px',
                       margin: '0 auto',
                       padding: '20px',
-                      backgroundColor: '#ffffff',
-                      color: '#000000',
+                      backgroundColor: formData.backgroundImageUrl ? 'transparent' : '#ffffff',
+                      backgroundImage: formData.backgroundImageUrl ? `url(${formData.backgroundImageUrl})` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                      color: formData.backgroundImageUrl ? '#ffffff' : '#000000',
                       border: '2px solid #007bff',
                       borderRadius: '8px',
-                      minHeight: '250px'
+                      minHeight: '250px',
+                      position: 'relative'
                     }}
                   >
-                    <div style={{ textAlign: 'center' }}>
-                      <h5 style={{ marginBottom: '10px', color: '#007bff', fontWeight: 'bold' }}>
+                    {formData.backgroundImageUrl && (
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        borderRadius: '6px',
+                        zIndex: 0
+                      }} />
+                    )}
+                    <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+                      <h5 style={{ marginBottom: '10px', color: formData.backgroundImageUrl ? '#ffffff' : '#007bff', fontWeight: 'bold', textShadow: formData.backgroundImageUrl ? '2px 2px 4px rgba(0,0,0,0.5)' : 'none' }}>
                         VISITOR CARD
                       </h5>
                       <hr style={{ margin: '10px 0' }} />
-                      <h4 style={{ marginBottom: '10px', fontWeight: 'bold' }}>
+                      <h4 style={{ marginBottom: '10px', fontWeight: 'bold', textShadow: formData.backgroundImageUrl ? '2px 2px 4px rgba(0,0,0,0.5)' : 'none' }}>
                         {formData.visitorName}
                       </h4>
-                      <p style={{ marginBottom: '5px', fontSize: '14px' }}>
+                      <p style={{ marginBottom: '5px', fontSize: '14px', textShadow: formData.backgroundImageUrl ? '1px 1px 2px rgba(0,0,0,0.5)' : 'none' }}>
                         <strong>Purpose:</strong> {formData.purpose}
                       </p>
                       {formData.company && (
-                        <p style={{ marginBottom: '5px', fontSize: '12px' }}>
+                        <p style={{ marginBottom: '5px', fontSize: '12px', textShadow: formData.backgroundImageUrl ? '1px 1px 2px rgba(0,0,0,0.5)' : 'none' }}>
                           <strong>Company:</strong> {formData.company}
                         </p>
                       )}
                       {formData.contact && (
-                        <p style={{ marginBottom: '5px', fontSize: '12px' }}>
+                        <p style={{ marginBottom: '5px', fontSize: '12px', textShadow: formData.backgroundImageUrl ? '1px 1px 2px rgba(0,0,0,0.5)' : 'none' }}>
                           <strong>Contact:</strong> {formData.contact}
                         </p>
                       )}
-                      <p style={{ marginBottom: '5px', fontSize: '12px' }}>
+                      <p style={{ marginBottom: '5px', fontSize: '12px', textShadow: formData.backgroundImageUrl ? '1px 1px 2px rgba(0,0,0,0.5)' : 'none' }}>
                         <strong>Host:</strong> {formData.hostEmployee}
                       </p>
-                      <p style={{ marginBottom: '5px', fontSize: '12px' }}>
+                      <p style={{ marginBottom: '5px', fontSize: '12px', textShadow: formData.backgroundImageUrl ? '1px 1px 2px rgba(0,0,0,0.5)' : 'none' }}>
                         <strong>Date:</strong> {formData.visitDate} <strong>Time:</strong> {formData.visitTime}
                       </p>
-                      <p style={{ marginBottom: '10px', fontSize: '10px', color: '#666' }}>
+                      <p style={{ marginBottom: '10px', fontSize: '10px', color: formData.backgroundImageUrl ? '#ffffff' : '#666', textShadow: formData.backgroundImageUrl ? '1px 1px 2px rgba(0,0,0,0.5)' : 'none' }}>
                         ID: {generatedCard.visitorId}
                       </p>
                       {/* QR code placeholder - implement if needed */}
