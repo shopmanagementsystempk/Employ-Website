@@ -36,7 +36,8 @@ function App() {
       <Router>
         <div className="App">
           <Navbar />
-          <Routes>
+          <div className="main-content">
+            <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -159,7 +160,8 @@ function App() {
             />
 
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+            </Routes>
+          </div>
         </div>
       </Router>
     </AuthProvider>
