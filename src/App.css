@@ -53,6 +53,29 @@ body {
 .softverse-navbar {
   background: linear-gradient(90deg, #0f172a, #111c44, #162447) !important;
   padding: 0.85rem 0;
+  position: relative;
+  z-index: 1000;
+  overflow: visible !important;
+}
+
+.softverse-navbar .container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 992px) {
+  .softverse-navbar .container {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }
 
 .softverse-navbar .navbar-brand {
@@ -60,6 +83,15 @@ body {
   letter-spacing: 0.02em;
   color: #f8fafc !important;
   font-size: 1.2rem;
+  white-space: nowrap;
+}
+
+.softverse-navbar .navbar-brand img {
+  transition: transform 0.2s ease;
+}
+
+.softverse-navbar .navbar-brand:hover img {
+  transform: scale(1.05);
 }
 
 .softverse-navbar .nav-link {
@@ -67,12 +99,226 @@ body {
   font-weight: 500;
   letter-spacing: 0.01em;
   transition: color 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+  padding: 0.5rem 0.75rem !important;
+  display: inline-block;
+  overflow: visible !important;
 }
 
 .softverse-navbar .nav-link:hover,
 .softverse-navbar .nav-link.active {
   color: #ffffff !important;
   transform: translateY(-1px);
+}
+
+.softverse-navbar .dropdown-menu {
+  background: linear-gradient(90deg, #0f172a, #111c44, #162447) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  margin-top: 0.5rem;
+}
+
+.softverse-navbar .dropdown-item {
+  color: rgba(248, 250, 252, 0.78) !important;
+  padding: 0.75rem 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.softverse-navbar .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.softverse-navbar .dropdown-toggle {
+  cursor: pointer;
+}
+
+.softverse-navbar .navbar-toggler {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.4rem 0.6rem;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.softverse-navbar .navbar-toggler:focus {
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+.softverse-navbar .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.95)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  width: 1.5em;
+  height: 1.5em;
+}
+
+/* Desktop styles (≥ 992px) */
+@media (min-width: 992px) {
+  .softverse-navbar {
+    padding: 1rem 0;
+    overflow: visible !important;
+  }
+  
+  .softverse-navbar .container-fluid,
+  .softverse-navbar .container {
+    max-width: 100% !important;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  .softverse-navbar .navbar-brand {
+    font-size: 1.3rem;
+    margin-right: 2rem;
+    flex-shrink: 0;
+    min-width: fit-content;
+  }
+  
+  .softverse-navbar .navbar-brand img {
+    height: 45px;
+  }
+  
+  .softverse-navbar .navbar-toggler {
+    display: none !important;
+  }
+  
+  .softverse-navbar .navbar-collapse {
+    flex-grow: 1;
+    display: flex !important;
+    flex-basis: auto;
+    justify-content: space-between;
+    align-items: center;
+    overflow: visible !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+  
+  .softverse-navbar .navbar-nav {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    overflow: visible !important;
+    width: auto !important;
+  }
+  
+  .softverse-navbar .nav-link {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.7rem !important;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  
+  .softverse-navbar .navbar-nav.me-auto {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: visible !important;
+    max-width: none !important;
+  }
+  
+  .softverse-navbar .navbar-nav.align-items-center {
+    flex: 0 0 auto;
+    margin-left: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+/* Tablet styles (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .softverse-navbar {
+    padding: 0.8rem 0;
+  }
+  
+  .softverse-navbar .navbar-brand {
+    font-size: 1.15rem;
+    margin-right: 1.5rem;
+  }
+  
+  .softverse-navbar .navbar-brand img {
+    height: 38px;
+  }
+  
+  .softverse-navbar .navbar-toggler {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+  
+  .softverse-navbar .nav-link {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.7rem !important;
+  }
+  
+  .softverse-navbar .navbar-collapse {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .softverse-navbar .navbar-nav {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+}
+
+/* Mobile styles (< 768px) */
+@media (max-width: 767.98px) {
+  .softverse-navbar {
+    padding: 0.75rem 0;
+  }
+  
+  .softverse-navbar .navbar-brand {
+    font-size: 1rem;
+    margin-right: auto;
+    flex: 0 0 auto;
+  }
+  
+  .softverse-navbar .navbar-brand img {
+    height: 32px;
+    margin-right: 8px;
+  }
+  
+  .softverse-navbar .navbar-toggler {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.15);
+    order: 2;
+    margin-left: auto;
+  }
+  
+  .softverse-navbar .navbar-collapse {
+    order: 3;
+    width: 100%;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .softverse-navbar .navbar-nav {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .softverse-navbar .nav-link {
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem !important;
+    width: 100%;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .softverse-navbar .nav-link:last-child {
+    border-bottom: none;
+  }
+  
+  .softverse-navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+  
+  .softverse-navbar .navbar-nav .nav-dropdown {
+    width: 100%;
+  }
 }
 
 .hero-section {
