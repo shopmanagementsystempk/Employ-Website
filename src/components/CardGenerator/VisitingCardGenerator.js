@@ -67,9 +67,18 @@ const VisitingCardGenerator = () => {
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
-    fetchUserData();
-    fetchTemplates();
+    if (currentUser) {
+      fetchUserData();
+      fetchTemplates();
+    }
   }, [currentUser]);
+
+  // Fetch saved card after templates are loaded
+  useEffect(() => {
+    if (currentUser && templates.length > 0) {
+      fetchSavedCard();
+    }
+  }, [currentUser, templates]);
 
   const fetchUserData = async () => {
     if (!currentUser) return;
@@ -80,23 +89,23 @@ const VisitingCardGenerator = () => {
         const userData = userDoc.data();
         setFormData((prev) => ({
           ...prev,
-          name: userData.name || '',
-          title: userData.title || '',
-          phone: userData.phone || '',
-          email: userData.email || currentUser.email || '',
-          designation: userData.designation || '',
-          company: userData.company || 'Soft Verse',
-          address: userData.address || '',
-          website: userData.website || '',
-          textColor: prev.textColor,
-          nameColor: prev.nameColor,
-          titleColor: prev.titleColor,
-          designationColor: prev.designationColor,
-          companyColor: prev.companyColor,
-          phoneColor: prev.phoneColor,
-          emailColor: prev.emailColor,
-          websiteColor: prev.websiteColor,
-          addressColor: prev.addressColor
+          name: userData.name || prev.name || '',
+          title: userData.title || prev.title || '',
+          phone: userData.phone || prev.phone || '',
+          email: userData.email || prev.email || currentUser.email || '',
+          designation: userData.designation || prev.designation || '',
+          company: userData.company || prev.company || 'Soft Verse',
+          address: userData.address || prev.address || '',
+          website: userData.website || prev.website || '',
+          textColor: prev.textColor || '#ffffff',
+          nameColor: prev.nameColor || '#ffffff',
+          titleColor: prev.titleColor || '#ffffff',
+          designationColor: prev.designationColor || '#ffffff',
+          companyColor: prev.companyColor || '#ffffff',
+          phoneColor: prev.phoneColor || '#ffffff',
+          emailColor: prev.emailColor || '#ffffff',
+          websiteColor: prev.websiteColor || '#ffffff',
+          addressColor: prev.addressColor || '#ffffff'
         }));
       }
     } catch (error) {
@@ -120,6 +129,90 @@ const VisitingCardGenerator = () => {
       }
     } catch (error) {
       console.error('Error fetching template:', error);
+    }
+  };
+
+  const fetchSavedCard = async () => {
+    if (!currentUser) return;
+
+    try {
+      const savedCardDoc = await getDoc(doc(db, 'visitingCards', currentUser.uid));
+      if (savedCardDoc.exists()) {
+        const savedData = savedCardDoc.data();
+        
+        // Helper to get value from savedData if it exists, otherwise use prev value
+        const getValue = (key, prevValue, defaultValue = '') => {
+          return savedData.hasOwnProperty(key) ? (savedData[key] !== null && savedData[key] !== undefined ? savedData[key] : defaultValue) : prevValue;
+        };
+        
+        // Update formData with all saved fields
+        setFormData((prev) => ({
+          ...prev,
+          // Basic fields - use saved value if it exists, otherwise keep prev value
+          name: getValue('name', prev.name),
+          title: getValue('title', prev.title),
+          phone: getValue('phone', prev.phone),
+          email: getValue('email', prev.email || currentUser.email),
+          designation: getValue('designation', prev.designation),
+          company: getValue('company', prev.company, 'Soft Verse'),
+          address: getValue('address', prev.address),
+          website: getValue('website', prev.website),
+          // Colors
+          textColor: getValue('textColor', prev.textColor, '#ffffff'),
+          nameColor: getValue('nameColor', prev.nameColor, '#ffffff'),
+          titleColor: getValue('titleColor', prev.titleColor, '#ffffff'),
+          designationColor: getValue('designationColor', prev.designationColor, '#ffffff'),
+          companyColor: getValue('companyColor', prev.companyColor, '#ffffff'),
+          phoneColor: getValue('phoneColor', prev.phoneColor, '#ffffff'),
+          emailColor: getValue('emailColor', prev.emailColor, '#ffffff'),
+          websiteColor: getValue('websiteColor', prev.websiteColor, '#ffffff'),
+          addressColor: getValue('addressColor', prev.addressColor, '#ffffff'),
+          // Offsets
+          nameOffsetX: savedData.nameOffsetX !== undefined ? savedData.nameOffsetX : (prev.nameOffsetX !== undefined ? prev.nameOffsetX : 0),
+          nameOffsetY: savedData.nameOffsetY !== undefined ? savedData.nameOffsetY : (prev.nameOffsetY !== undefined ? prev.nameOffsetY : 0),
+          titleOffsetX: savedData.titleOffsetX !== undefined ? savedData.titleOffsetX : (prev.titleOffsetX !== undefined ? prev.titleOffsetX : 0),
+          titleOffsetY: savedData.titleOffsetY !== undefined ? savedData.titleOffsetY : (prev.titleOffsetY !== undefined ? prev.titleOffsetY : 0),
+          designationOffsetX: savedData.designationOffsetX !== undefined ? savedData.designationOffsetX : (prev.designationOffsetX !== undefined ? prev.designationOffsetX : 0),
+          designationOffsetY: savedData.designationOffsetY !== undefined ? savedData.designationOffsetY : (prev.designationOffsetY !== undefined ? prev.designationOffsetY : 0),
+          companyOffsetX: savedData.companyOffsetX !== undefined ? savedData.companyOffsetX : (prev.companyOffsetX !== undefined ? prev.companyOffsetX : 0),
+          companyOffsetY: savedData.companyOffsetY !== undefined ? savedData.companyOffsetY : (prev.companyOffsetY !== undefined ? prev.companyOffsetY : 0),
+          phoneOffsetX: savedData.phoneOffsetX !== undefined ? savedData.phoneOffsetX : (prev.phoneOffsetX !== undefined ? prev.phoneOffsetX : 0),
+          phoneOffsetY: savedData.phoneOffsetY !== undefined ? savedData.phoneOffsetY : (prev.phoneOffsetY !== undefined ? prev.phoneOffsetY : 0),
+          emailOffsetX: savedData.emailOffsetX !== undefined ? savedData.emailOffsetX : (prev.emailOffsetX !== undefined ? prev.emailOffsetX : 0),
+          emailOffsetY: savedData.emailOffsetY !== undefined ? savedData.emailOffsetY : (prev.emailOffsetY !== undefined ? prev.emailOffsetY : 0),
+          websiteOffsetX: savedData.websiteOffsetX !== undefined ? savedData.websiteOffsetX : (prev.websiteOffsetX !== undefined ? prev.websiteOffsetX : 0),
+          websiteOffsetY: savedData.websiteOffsetY !== undefined ? savedData.websiteOffsetY : (prev.websiteOffsetY !== undefined ? prev.websiteOffsetY : 0),
+          addressOffsetX: savedData.addressOffsetX !== undefined ? savedData.addressOffsetX : (prev.addressOffsetX !== undefined ? prev.addressOffsetX : 0),
+          addressOffsetY: savedData.addressOffsetY !== undefined ? savedData.addressOffsetY : (prev.addressOffsetY !== undefined ? prev.addressOffsetY : 0),
+          // Logo fields
+          logoUrl: getValue('logoUrl', prev.logoUrl),
+          logoColor: getValue('logoColor', prev.logoColor, '#ffffff'),
+          logoOffsetX: savedData.logoOffsetX !== undefined ? savedData.logoOffsetX : (prev.logoOffsetX !== undefined ? prev.logoOffsetX : 0),
+          logoOffsetY: savedData.logoOffsetY !== undefined ? savedData.logoOffsetY : (prev.logoOffsetY !== undefined ? prev.logoOffsetY : 0),
+          // Size fields
+          nameSize: getValue('nameSize', prev.nameSize),
+          titleSize: getValue('titleSize', prev.titleSize),
+          designationSize: getValue('designationSize', prev.designationSize),
+          companySize: getValue('companySize', prev.companySize),
+          phoneSize: getValue('phoneSize', prev.phoneSize),
+          emailSize: getValue('emailSize', prev.emailSize),
+          websiteSize: getValue('websiteSize', prev.websiteSize),
+          addressSize: getValue('addressSize', prev.addressSize),
+          logoSize: getValue('logoSize', prev.logoSize)
+        }));
+
+        // Set the saved template if it exists
+        if (savedData.templateId) {
+          setSelectedTemplateId(savedData.templateId);
+          // Find and set the template
+          const foundTemplate = templates.find((t) => t.id === savedData.templateId);
+          if (foundTemplate) {
+            setTemplate(foundTemplate);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching saved card:', error);
     }
   };
 
