@@ -43,13 +43,19 @@ const VisitingCardGenerator = () => {
     websiteOffsetX: 0,
     websiteOffsetY: 0,
     addressOffsetX: 0,
-    addressOffsetY: 0
+    addressOffsetY: 0,
+    logoUrl: '',
+    logoColor: '#ffffff',
+    logoOffsetX: 0,
+    logoOffsetY: 0
   });
   const [templates, setTemplates] = useState([]);
   const [template, setTemplate] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [logoFile, setLogoFile] = useState(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -113,6 +119,56 @@ const VisitingCardGenerator = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const uploadToCloudinary = async (file) => {
+    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      toast.error('Cloudinary configuration missing.');
+      return '';
+    }
+
+    const data = new FormData();
+    data.append('file', file);
+    data.append('upload_preset', uploadPreset);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST',
+      body: data
+    });
+
+    const json = await res.json();
+    if (res.ok && json.secure_url) {
+      return json.secure_url;
+    }
+    console.error('Cloudinary upload error:', json);
+    toast.error(json.error?.message || 'Cloudinary upload failed.');
+    return '';
+  };
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    try {
+      const logoUrl = await uploadToCloudinary(file);
+      if (logoUrl) {
+        setFormData({
+          ...formData,
+          logoUrl
+        });
+        toast.success('Logo uploaded successfully!');
+      }
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast.error('Failed to upload logo');
+    } finally {
+      setUploadingLogo(false);
+      setLogoFile(null);
+    }
   };
 
   const getOffsetStyle = (field) => {
@@ -514,6 +570,54 @@ const VisitingCardGenerator = () => {
                     </Form.Group>
                   </div>
                 </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Logo</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
+                  />
+                  {uploadingLogo && (
+                    <Form.Text className="text-muted">Uploading logo...</Form.Text>
+                  )}
+                  {formData.logoUrl && (
+                    <div className="mt-2">
+                      <img 
+                        src={formData.logoUrl} 
+                        alt="Logo preview" 
+                        style={{ maxWidth: '100px', maxHeight: '60px', objectFit: 'contain' }}
+                      />
+                    </div>
+                  )}
+                  <Form.Label className="mt-2">Text Color</Form.Label>
+                  <Form.Control 
+                    type="color" 
+                    name="logoColor" 
+                    value={formData.logoColor} 
+                    onChange={handleChange} 
+                  />
+                  <div className="d-flex gap-2 mt-2 flex-wrap">
+                    <Form.Group className="flex-fill">
+                      <Form.Label className="small text-muted">Horizontal Offset (px)</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="logoOffsetX"
+                        value={formData.logoOffsetX}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                    <Form.Group className="flex-fill">
+                      <Form.Label className="small text-muted">Vertical Offset (px)</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="logoOffsetY"
+                        value={formData.logoOffsetY}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </div>
+                </Form.Group>
                 <div className="d-grid gap-2">
                   <Button variant="primary" onClick={saveCard} disabled={saving}>
                     {saving ? 'Saving...' : 'Save Card'}
@@ -557,6 +661,24 @@ const VisitingCardGenerator = () => {
                       }}
                     />
                     <div className="template-overlay" style={{ color: formData.textColor }}>
+                      {formData.logoUrl && (
+                        <div style={{ 
+                          position: 'absolute', 
+                          top: '10px', 
+                          left: '10px', 
+                          zIndex: 10,
+                          transform: `translate(${Number(formData.logoOffsetX) || 0}px, ${Number(formData.logoOffsetY) || 0}px)`
+                        }}>
+                          <img src={formData.logoUrl} alt="Logo" style={{
+                            maxWidth: '120px',
+                            maxHeight: '80px',
+                            objectFit: 'contain',
+                            filter: formData.logoColor && formData.logoColor !== '#ffffff' 
+                              ? `drop-shadow(0 0 2px ${formData.logoColor})` 
+                              : 'none'
+                          }} />
+                        </div>
+                      )}
                       <div className="template-overlay-inner">
                         <div>
                           <h4 style={{ color: formData.nameColor || formData.textColor, ...getOffsetStyle('name') }}>
@@ -596,6 +718,24 @@ const VisitingCardGenerator = () => {
                   </div>
                 ) : template?.layout === 'softverse-premium' ? (
                   <div className="card-softverse-premium">
+                    {formData.logoUrl && (
+                      <div style={{ 
+                        position: 'absolute', 
+                        top: '10px', 
+                        right: '10px', 
+                        zIndex: 10,
+                        transform: `translate(${Number(formData.logoOffsetX) || 0}px, ${Number(formData.logoOffsetY) || 0}px)`
+                      }}>
+                        <img src={formData.logoUrl} alt="Logo" style={{
+                          maxWidth: '120px',
+                          maxHeight: '80px',
+                          objectFit: 'contain',
+                          filter: formData.logoColor && formData.logoColor !== '#ffffff' 
+                            ? `drop-shadow(0 0 2px ${formData.logoColor})` 
+                            : 'none'
+                        }} />
+                      </div>
+                    )}
                     <div className="card-softverse-premium-inner">
                     <div className="svp-main">
                       <div className="svp-name-block">
@@ -643,7 +783,23 @@ const VisitingCardGenerator = () => {
                     </div>
                   </div>
                 ) : (
-                  <div style={{ textAlign: 'center' }}>
+                  <div style={{ textAlign: 'center', position: 'relative' }}>
+                    {formData.logoUrl && (
+                      <div style={{ 
+                        marginBottom: '10px',
+                        display: 'inline-block',
+                        transform: `translate(${Number(formData.logoOffsetX) || 0}px, ${Number(formData.logoOffsetY) || 0}px)`
+                      }}>
+                        <img src={formData.logoUrl} alt="Logo" style={{
+                          maxWidth: '120px',
+                          maxHeight: '80px',
+                          objectFit: 'contain',
+                          filter: formData.logoColor && formData.logoColor !== '#ffffff' 
+                            ? `drop-shadow(0 0 2px ${formData.logoColor})` 
+                            : 'none'
+                        }} />
+                      </div>
+                    )}
                     <h4
                       style={{
                         marginBottom: '10px',
