@@ -1,80 +1,51 @@
-import React from 'react';
-import { Navbar as BootstrapNavbar, Nav, Container, NavDropdown } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from 'react';
+import { Navbar as BootstrapNavbar, Container } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import Sidebar from './Sidebar';
 
 const Navbar = () => {
-  const { currentUser, userRole, logout } = useAuth();
-  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
   };
 
   return (
-    <BootstrapNavbar expand="lg" className="mb-4 softverse-navbar floating-rings">
-      <Container fluid="lg">
-        <BootstrapNavbar.Brand as={Link} to="/" className="d-flex align-items-center">
-          <img 
-            src="/logo.png" 
-            alt="Soft Verse Logo" 
-            style={{ 
-              height: '40px', 
-              width: 'auto', 
-              marginRight: '10px',
-              objectFit: 'contain'
-            }} 
-          />
-          <span>
-            Soft <span style={{ color: '#6ee7b7' }}>Verse</span>
-          </span>
-        </BootstrapNavbar.Brand>
-        <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
-        <BootstrapNavbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto" style={{ flexWrap: 'wrap', gap: '0.25rem' }}>
-            {currentUser && (
-              <>
-                {userRole === 'admin' && (
-                  <>
-                    <Nav.Link as={Link} to="/admin/dashboard">Admin Dashboard</Nav.Link>
-                    <Nav.Link as={Link} to="/admin/users">Manage Users</Nav.Link>
-                    <Nav.Link as={Link} to="/admin/employees">Manage Employees</Nav.Link>
-                    <Nav.Link as={Link} to="/admin/offer-letters">Offer Letters</Nav.Link>
-                    <Nav.Link as={Link} to="/admin/appointment-letters">Appointment Letters</Nav.Link>
-                    <Nav.Link as={Link} to="/admin/visiting-card-records">Card History</Nav.Link>
-                    <Nav.Link as={Link} to="/admin/offer-letter-records">Offer Letter Records</Nav.Link>
-                    <Nav.Link as={Link} to="/admin/appointment-letter-records">Appointment Letter Records</Nav.Link>
-                    <Nav.Link as={Link} to="/admin/templates">Card Templates</Nav.Link>
-                    <Nav.Link as={Link} to="/admin/logs">Activity Logs</Nav.Link>
-                  </>
-                )}
-                {(userRole === 'employee' || userRole === 'admin') && (
-                  <>
-                    <Nav.Link as={Link} to="/employee/dashboard">Employee Dashboard</Nav.Link>
-                    <Nav.Link as={Link} to="/employee/visiting-card">My Visiting Card</Nav.Link>
-                    <Nav.Link as={Link} to="/employee/visitor-card">Generate Visitor Card</Nav.Link>
-                    <Nav.Link as={Link} to="/employee/visitor-history">Visitor History</Nav.Link>
-                  </>
-                )}
-              </>
-            )}
-          </Nav>
-          <Nav className="align-items-center gap-2">
-            {currentUser ? (
-              <NavDropdown title={currentUser.displayName || currentUser.email} id="user-dropdown" align="end">
-                <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
-              </NavDropdown>
-            ) : (
-              <>
-                <Nav.Link as={Link} to="/login">Login</Nav.Link>
-                <Nav.Link as={Link} to="/register">Register</Nav.Link>
-              </>
-            )}
-          </Nav>
-        </BootstrapNavbar.Collapse>
-      </Container>
-    </BootstrapNavbar>
+    <>
+      <BootstrapNavbar className="mb-4 softverse-navbar floating-rings">
+        <Container fluid="lg">
+          <BootstrapNavbar.Brand as={Link} to="/" className="d-flex align-items-center">
+            <img 
+              src="/logo.png" 
+              alt="Soft Verse Logo" 
+              style={{ 
+                height: '40px', 
+                width: 'auto', 
+                marginRight: '10px',
+                objectFit: 'contain'
+              }} 
+            />
+            <span>
+              Soft <span style={{ color: '#6ee7b7' }}>Verse</span>
+            </span>
+          </BootstrapNavbar.Brand>
+          <button 
+            className="sidebar-toggle-btn"
+            onClick={toggleSidebar}
+            aria-label="Toggle sidebar"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </Container>
+      </BootstrapNavbar>
+      <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
+    </>
   );
 };
 
