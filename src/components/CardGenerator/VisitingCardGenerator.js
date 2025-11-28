@@ -273,6 +273,14 @@ const VisitingCardGenerator = () => {
     }
   };
 
+  const handleRemoveLogo = () => {
+    setFormData({
+      ...formData,
+      logoUrl: ''
+    });
+    toast.success('Logo removed successfully!');
+  };
+
   const getOffsetStyle = (field) => {
     const x = Number(formData[`${field}OffsetX`]) || 0;
     const y = Number(formData[`${field}OffsetY`]) || 0;
@@ -785,12 +793,19 @@ const VisitingCardGenerator = () => {
                     <Form.Text className="text-muted">Uploading logo...</Form.Text>
                   )}
                   {formData.logoUrl && (
-                    <div className="mt-2">
+                    <div className="mt-2 d-flex align-items-center gap-2">
                       <img 
                         src={formData.logoUrl} 
                         alt="Logo preview" 
                         style={{ maxWidth: '100px', maxHeight: '60px', objectFit: 'contain' }}
                       />
+                      <Button 
+                        variant="danger" 
+                        size="sm" 
+                        onClick={handleRemoveLogo}
+                      >
+                        Remove Logo
+                      </Button>
                     </div>
                   )}
                   <Form.Label className="mt-2">Text Color</Form.Label>
